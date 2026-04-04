@@ -7,78 +7,155 @@ import {
   removeCat,
 } from '../models/cat_model.js';
 
-const getCat = async (req, res) => {
-  const cats = await listAllCats();
-  res.json(cats);
+// ----------------------
+// GET /cats
+// ----------------------
+const getCat = async (req, res, next) => {
+  try {
+    const cats = await listAllCats();
+    res.json(cats);
+  } catch (err) {
+    next(err);
+  }
 };
 
-const getCatById = async (req, res) => {
-  const cat = await findCatById(req.params.id);
-  if (cat) {
+// ----------------------
+// GET /cats/:id
+// ----------------------
+const getCatById = async (req, res, next) => {
+  try {
+    const cat = await findCatById(req.params.id);
+
+    if (!cat) {
+      const error = new Error('Cat not found');
+      error.status = 404;
+      return next(error);
+    }
+
     res.json(cat);
-  } else {
-    res.sendStatus(404);
+  } catch (err) {
+    next(err);
   }
 };
 
-const getCatsByUserId = async (req, res) => {
-  const cats = await findCatsByUserId(req.params.id);
-  res.json(cats);
-};
-
-const postCat = async (req, res) => {
-  const result = await addCat({
-    ...req.body,
-    filename: req.file?.filename,
-  });
-  if (result.cat_id) {
-    res.status(201);
-    res.json({message: 'New cat added.', result});
-    console.log('FORM DATA:', req.body);
-    console.log('FILE DATA:', req.file);
-  } else {
-    res.sendStatus(400);
+// ----------------------
+// GET /cats/user/:id
+// ----------------------
+const getCatsByUserId = async (req, res, next) => {
+  try {
+    const cats = await findCatsByUserId(req.params.id);
+    res.json(cats);
+  } catch (err) {
+    next(err);
   }
 };
 
-const putCat = async (req, res) => {
-  const user = res.locals.user;
-  const catId = req.params.id;
-
-  if (user.role !== 'admin') {
-    const cat = await getCatById(catId);
-
-    if (!cat) {
-      return res.status(404).json({message: 'Cat not found'});
+// ----------------------
+// POST /cats
+// ----------------------
+const postCat = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      const error = new Error('Invalid or missing file');
+      error.status = 400;
+      return next(error);
     }
 
-    if (cat.owner !== user.user_id) {
-      return res.status(403).json({message: 'Not allowed'});
+    const newCat = {
+      ...req.body,
+      filename: req.file.filename,
+    };
+
+    const result = await addCat(newCat);
+
+    if (!result || result.error) {
+      const error = new Error(result?.error || 'Failed to add cat');
+      error.status = 400;
+      return next(error);
     }
+
+    res.status(201).json({message: 'New cat added', result});
+  } catch (err) {
+    next(err);
   }
-
-  const updated = await modifyCat(req.body, catId, res.locals.user);
-  res.json(updated);
 };
 
-const deleteCat = async (req, res) => {
-  const user = res.locals.user;
-  const catId = req.params.id;
+// ----------------------
+// PUT /cats/:id
+// ----------------------
+const putCat = async (req, res, next) => {
+  try {
+    const user = res.locals.user;
+    const catId = req.params.id;
 
-  if (user.role !== 'admin') {
-    const cat = await getCatById(catId);
+    // Check permissions
+    if (user.role !== 'admin') {
+      const cat = await findCatById(catId);
 
-    if (!cat) {
-      return res.status(404).json({message: 'Cat not found'});
+      if (!cat) {
+        const error = new Error('Cat not found');
+        error.status = 404;
+        return next(error);
+      }
+
+      if (cat.owner !== user.user_id) {
+        const error = new Error('Not allowed');
+        error.status = 403;
+        return next(error);
+      }
     }
 
-    if (cat.owner !== user.user_id) {
-      return res.status(403).json({message: 'Not allowed'});
+    const updated = await modifyCat(req.body, catId, user);
+
+    if (!updated) {
+      const error = new Error('Failed to update cat');
+      error.status = 400;
+      return next(error);
     }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
   }
+};
 
-  const result = await removeCat(catId, res.locals.user);
-  res.json({message: 'Cat deleted', result});
+// ----------------------
+// DELETE /cats/:id
+// ----------------------
+const deleteCat = async (req, res, next) => {
+  try {
+    const user = res.locals.user;
+    const catId = req.params.id;
+
+    // Check permissions
+    if (user.role !== 'admin') {
+      const cat = await findCatById(catId);
+
+      if (!cat) {
+        const error = new Error('Cat not found');
+        error.status = 404;
+        return next(error);
+      }
+
+      if (cat.owner !== user.user_id) {
+        const error = new Error('Not allowed');
+        error.status = 403;
+        return next(error);
+      }
+    }
+
+    const result = await removeCat(catId, user);
+
+    if (!result) {
+      const error = new Error('Failed to delete cat');
+      error.status = 400;
+      return next(error);
+    }
+
+    res.json({message: 'Cat deleted', result});
+  } catch (err) {
+    next(err);
+  }
 };
 
 export {getCat, getCatById, getCatsByUserId, postCat, putCat, deleteCat};
