@@ -2,16 +2,18 @@ import {
   addCat,
   findCatById,
   listAllCats,
-  updateCat,
-  deleteCatModel,
+  findCatsByUserId,
+  modifyCat,
+  removeCat,
 } from '../models/cat_model.js';
 
-const getCat = (req, res) => {
-  res.json(listAllCats());
+const getCat = async (req, res) => {
+  const cats = await listAllCats();
+  res.json(cats);
 };
 
-const getCatById = (req, res) => {
-  const cat = findCatById(req.params.id);
+const getCatById = async (req, res) => {
+  const cat = await findCatById(req.params.id);
   if (cat) {
     res.json(cat);
   } else {
@@ -19,8 +21,13 @@ const getCatById = (req, res) => {
   }
 };
 
-const postCat = (req, res) => {
-  const result = addCat({
+const getCatsByUserId = async (req, res) => {
+  const cats = await findCatsByUserId(req.params.id);
+  res.json(cats);
+};
+
+const postCat = async (req, res) => {
+  const result = await addCat({
     ...req.body,
     filename: req.file?.filename,
   });
@@ -34,8 +41,8 @@ const postCat = (req, res) => {
   }
 };
 
-const putCat = (req, res) => {
-  const updated = updateCat(req.params.id, req.body);
+const putCat = async (req, res) => {
+  const updated = await modifyCat(req.body, req.params.id);
 
   if (updated) {
     res.json({
@@ -49,9 +56,9 @@ const putCat = (req, res) => {
   res.sendStatus(200);
 };
 
-const deleteCat = (req, res) => {
-  const ok = deleteCatModel(req.params.id);
-  if (ok) {
+const deleteCat = async (req, res) => {
+  const deleted = await removeCat(req.params.id);
+  if (deleted) {
     res.json({message: 'Cat deleted'});
   } else {
     res.sendStatus(404);
@@ -59,4 +66,4 @@ const deleteCat = (req, res) => {
   res.sendStatus(200);
 };
 
-export {getCat, getCatById, postCat, putCat, deleteCat};
+export {getCat, getCatById, getCatsByUserId, postCat, putCat, deleteCat};
