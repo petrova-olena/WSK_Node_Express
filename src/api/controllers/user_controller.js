@@ -6,12 +6,13 @@ import {
   deleteUserModel,
 } from '../models/user_model.js';
 
-const getUser = (req, res) => {
-  res.json(listAllUsers());
+const getUser = async (req, res) => {
+  const users = await listAllUsers();
+  res.json(users);
 };
 
-const getUserById = (req, res) => {
-  const user = findUserById(req.params.id);
+const getUserById = async (req, res) => {
+  const user = await findUserById(req.params.id);
   if (user) {
     res.json(user);
   } else {
@@ -19,8 +20,8 @@ const getUserById = (req, res) => {
   }
 };
 
-const postUser = (req, res) => {
-  const result = addUser(req.body);
+const postUser = async (req, res) => {
+  const result = await addUser(req.body);
   if (result.user_id) {
     res.status(201);
     res.json({message: 'New user added.', result});
@@ -29,8 +30,8 @@ const postUser = (req, res) => {
   }
 };
 
-const putUser = (req, res) => {
-  const updated = updateUser(req.params.id, req.body);
+const putUser = async (req, res) => {
+  const updated = await updateUser(req.params.id, req.body);
 
   if (updated) {
     res.json({
@@ -40,12 +41,10 @@ const putUser = (req, res) => {
   } else {
     res.sendStatus(404);
   }
-
-  res.sendStatus(200);
 };
 
-const deleteUser = (req, res) => {
-  const ok = deleteUserModel(req.params.id);
+const deleteUser = async (req, res) => {
+  const ok = await deleteUserModel(req.params.id);
   if (ok) {
     res.json({message: 'User deleted'});
   } else {
