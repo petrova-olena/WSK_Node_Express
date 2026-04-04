@@ -10,6 +10,14 @@ import bcrypt from 'bcrypt';
 // ----------------------
 // GET /users
 // ----------------------
+/**
+ * @api {get} /api/v1/users Get all users
+ * @apiName GetUsers
+ * @apiGroup Users
+ *
+ * @apiSuccess {Object[]} users List of users
+ */
+
 const getUser = async (req, res, next) => {
   try {
     const users = await listAllUsers();
@@ -22,6 +30,17 @@ const getUser = async (req, res, next) => {
 // ----------------------
 // GET /users/:id
 // ----------------------
+/**
+ * @api {get} /api/v1/users/:id Get user by ID
+ * @apiName GetUserById
+ * @apiGroup Users
+ *
+ * @apiParam {Number} id User ID
+ *
+ * @apiSuccess {Object} user User data
+ * @apiError (404) NotFound User not found
+ */
+
 const getUserById = async (req, res, next) => {
   try {
     const user = await findUserById(req.params.id);
@@ -41,6 +60,19 @@ const getUserById = async (req, res, next) => {
 // ----------------------
 // POST /users
 // ----------------------
+/**
+ * @api {post} /api/v1/users Create new user
+ * @apiName CreateUser
+ * @apiGroup Users
+ *
+ * @apiBody {String} email User email
+ * @apiBody {String} username Username
+ * @apiBody {String} password Password
+ *
+ * @apiSuccess (201) {Object} result Created user ID
+ * @apiError (400) BadRequest Validation error
+ */
+
 const postUser = async (req, res, next) => {
   try {
     req.body.password = bcrypt.hashSync(req.body.password, 10);
@@ -66,6 +98,19 @@ const postUser = async (req, res, next) => {
 // ----------------------
 // PUT /users/:id
 // ----------------------
+/**
+ * @api {put} /api/v1/users/:id Update user
+ * @apiName UpdateUser
+ * @apiGroup Users
+ *
+ * @apiHeader {String} Authorization Bearer token
+ * @apiParam {Number} id User ID
+ *
+ * @apiSuccess {Object} result Update status
+ * @apiError (403) Forbidden Not allowed
+ * @apiError (400) BadRequest Validation error
+ */
+
 const putUser = async (req, res, next) => {
   try {
     const user = res.locals.user; // { user_id, role }
@@ -95,6 +140,19 @@ const putUser = async (req, res, next) => {
 // ----------------------
 // DELETE /users/:id
 // ----------------------
+/**
+ * @api {delete} /api/v1/users/:id Delete user
+ * @apiName DeleteUser
+ * @apiGroup Users
+ *
+ * @apiHeader {String} Authorization Bearer token
+ * @apiParam {Number} id User ID
+ *
+ * @apiSuccess {Object} result Deletion status
+ * @apiError (403) Forbidden Not allowed
+ * @apiError (404) NotFound User not found
+ */
+
 const deleteUser = async (req, res, next) => {
   try {
     const user = res.locals.user;

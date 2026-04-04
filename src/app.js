@@ -29,4 +29,6 @@ app.post('/', (req, res) => {
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+app.use('/docs', express.static('docs'));
+
 export default app;

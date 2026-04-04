@@ -6,6 +6,20 @@ import 'dotenv/config';
 // ----------------------
 // POST /auth/login
 // ----------------------
+/**
+ * @api {post} /api/v1/auth/login Login user
+ * @apiName LoginUser
+ * @apiGroup Auth
+ *
+ * @apiBody {String} username Username of the user
+ * @apiBody {String} password Password of the user
+ *
+ * @apiSuccess {Object} user User data without password
+ * @apiSuccess {String} token JWT token valid for 24 hours
+ *
+ * @apiError (401) Unauthorized Invalid username or password
+ */
+
 const postLogin = async (req, res, next) => {
   try {
     const user = await findUserByUsername(req.body.username);
@@ -48,6 +62,19 @@ const postLogin = async (req, res, next) => {
 // ----------------------
 // GET /auth/me
 // ----------------------
+/**
+ * @api {get} /api/v1/auth/me Get authenticated user
+ * @apiName GetMe
+ * @apiGroup Auth
+ *
+ * @apiHeader {String} Authorization Bearer token
+ *
+ * @apiSuccess {String} message Token status
+ * @apiSuccess {Object} user Decoded user data
+ *
+ * @apiError (401) Unauthorized Missing or invalid token
+ */
+
 const getMe = async (req, res, next) => {
   try {
     if (!res.locals.user) {

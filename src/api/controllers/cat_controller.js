@@ -10,6 +10,14 @@ import {
 // ----------------------
 // GET /cats
 // ----------------------
+/**
+ * @api {get} /api/v1/cats Get all cats
+ * @apiName GetCats
+ * @apiGroup Cats
+ *
+ * @apiSuccess {Object[]} cats List of cats
+ */
+
 const getCat = async (req, res, next) => {
   try {
     const cats = await listAllCats();
@@ -22,6 +30,17 @@ const getCat = async (req, res, next) => {
 // ----------------------
 // GET /cats/:id
 // ----------------------
+/**
+ * @api {get} /api/v1/cats/:id Get cat by ID
+ * @apiName GetCatById
+ * @apiGroup Cats
+ *
+ * @apiParam {Number} id Cat ID
+ *
+ * @apiSuccess {Object} cat Cat data
+ * @apiError (404) NotFound Cat not found
+ */
+
 const getCatById = async (req, res, next) => {
   try {
     const cat = await findCatById(req.params.id);
@@ -41,6 +60,16 @@ const getCatById = async (req, res, next) => {
 // ----------------------
 // GET /cats/user/:id
 // ----------------------
+/**
+ * @api {get} /api/v1/cats/user/:id Get cats by user ID
+ * @apiName GetCatsByUser
+ * @apiGroup Cats
+ *
+ * @apiParam {Number} id User ID
+ *
+ * @apiSuccess {Object[]} cats List of user's cats
+ */
+
 const getCatsByUserId = async (req, res, next) => {
   try {
     const cats = await findCatsByUserId(req.params.id);
@@ -53,6 +82,23 @@ const getCatsByUserId = async (req, res, next) => {
 // ----------------------
 // POST /cats
 // ----------------------
+/**
+ * @api {post} /api/v1/cats Create new cat
+ * @apiName CreateCat
+ * @apiGroup Cats
+ *
+ * @apiHeader {String} Authorization Bearer token
+ *
+ * @apiBody {String} cat_name Cat name
+ * @apiBody {Number} weight Cat weight
+ * @apiBody {Number} owner Owner user ID
+ * @apiBody {String} birthdate Birthdate (ISO8601)
+ * @apiBody {File} cat Image or video file
+ *
+ * @apiSuccess (201) {Object} result Created cat ID
+ * @apiError (400) BadRequest Validation or upload error
+ */
+
 const postCat = async (req, res, next) => {
   try {
     if (!req.file) {
@@ -83,6 +129,19 @@ const postCat = async (req, res, next) => {
 // ----------------------
 // PUT /cats/:id
 // ----------------------
+/**
+ * @api {put} /api/v1/cats/:id Update cat
+ * @apiName UpdateCat
+ * @apiGroup Cats
+ *
+ * @apiHeader {String} Authorization Bearer token
+ * @apiParam {Number} id Cat ID
+ *
+ * @apiSuccess {Object} result Update status
+ * @apiError (403) Forbidden Not allowed
+ * @apiError (404) NotFound Cat not found
+ */
+
 const putCat = async (req, res, next) => {
   try {
     const user = res.locals.user;
@@ -122,6 +181,19 @@ const putCat = async (req, res, next) => {
 // ----------------------
 // DELETE /cats/:id
 // ----------------------
+/**
+ * @api {delete} /api/v1/cats/:id Delete cat
+ * @apiName DeleteCat
+ * @apiGroup Cats
+ *
+ * @apiHeader {String} Authorization Bearer token
+ * @apiParam {Number} id Cat ID
+ *
+ * @apiSuccess {Object} result Deletion status
+ * @apiError (403) Forbidden Not allowed
+ * @apiError (404) NotFound Cat not found
+ */
+
 const deleteCat = async (req, res, next) => {
   try {
     const user = res.locals.user;
