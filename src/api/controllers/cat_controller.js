@@ -42,28 +42,43 @@ const postCat = async (req, res) => {
 };
 
 const putCat = async (req, res) => {
-  const updated = await modifyCat(req.body, req.params.id);
+  const user = res.locals.user;
+  const catId = req.params.id;
 
-  if (updated) {
-    res.json({
-      message: 'Cat updated successfully',
-      updated,
-    });
-  } else {
-    res.sendStatus(404);
+  if (user.role !== 'admin') {
+    const cat = await getCatById(catId);
+
+    if (!cat) {
+      return res.status(404).json({message: 'Cat not found'});
+    }
+
+    if (cat.owner !== user.user_id) {
+      return res.status(403).json({message: 'Not allowed'});
+    }
   }
 
-  res.sendStatus(200);
+  const updated = await modifyCat(req.body, catId, res.locals.user);
+  res.json(updated);
 };
 
 const deleteCat = async (req, res) => {
-  const deleted = await removeCat(req.params.id);
-  if (deleted) {
-    res.json({message: 'Cat deleted'});
-  } else {
-    res.sendStatus(404);
+  const user = res.locals.user;
+  const catId = req.params.id;
+
+  if (user.role !== 'admin') {
+    const cat = await getCatById(catId);
+
+    if (!cat) {
+      return res.status(404).json({message: 'Cat not found'});
+    }
+
+    if (cat.owner !== user.user_id) {
+      return res.status(403).json({message: 'Not allowed'});
+    }
   }
-  res.sendStatus(200);
+
+  const result = await removeCat(catId, res.locals.user);
+  res.json({message: 'Cat deleted', result});
 };
 
 export {getCat, getCatById, getCatsByUserId, postCat, putCat, deleteCat};
