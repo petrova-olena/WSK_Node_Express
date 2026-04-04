@@ -15,5 +15,8 @@
     "globals": "^17.4.0"
   },
   "type": "module",
-  "dev": "nodemon app.js"
+  "dev": "nodemon app.js",
+  "dependencies": {
+    "sharp": "^0.34.5"
+  }
 }
