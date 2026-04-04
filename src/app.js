@@ -1,12 +1,16 @@
 import api from './api/index.js';
 import express from 'express';
+import authRouter from './api/routes/auth_router.js';
+import cors from 'cors';
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 app.use(express.urlencoded());
 
 app.use('/api/v1', api);
+app.use('/api/v1/auth', authRouter);
 
 app.get('/', (req, res) => {
   res.send('Welcome to my REST API!');

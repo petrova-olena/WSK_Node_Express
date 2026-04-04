@@ -6,11 +6,16 @@ import {
   putUser,
   deleteUser,
 } from '../controllers/user_controller.js';
+import {authenticateToken} from '../../middlewares/authentication.js';
 
 const userRouter = express.Router();
 
 userRouter.route('/').get(getUser).post(postUser);
 
-userRouter.route('/:id').get(getUserById).put(putUser).delete(deleteUser);
+userRouter
+  .route('/:id')
+  .get(getUserById)
+  .put(authenticateToken, putUser)
+  .delete(authenticateToken, deleteUser);
 
 export default userRouter;
